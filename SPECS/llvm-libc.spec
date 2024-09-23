@@ -14,7 +14,7 @@ LLVM libc is an implementation of the C standard library optimized for use with 
 
 %prep
 %setup -q
-
+%global debug_package %{nil}
 %build
 # 创建独立的构建目录build,需要在build内配置ninja
 mkdir -p build
@@ -30,12 +30,13 @@ cd build
 %define target_triple riscv64-openEuler-linux-gnu
 %endif
 
-cmake ../runtimes -G Ninja          \
-      -DLLVM_ENABLE_RUNTIMES="libc" \
-      -DCMAKE_C_COMPILER=clang      \
-      -DCMAKE_CXX_COMPILER=clang++  \
-      -DCMAKE_BUILD_TYPE=Release    \
-      -DLIBC_TARGET_TRIPLE=%{target_triple}
+cmake ../runtimes -G Ninja 
+      -DLLVM_ENABLE_RUNTIMES="libc"  \
+      -DCMAKE_C_COMPILER=clang \
+      -DCMAKE_CXX_COMPILER=clang++ \
+      -DCMAKE_BUILD_TYPE=Release>  
+      -DLIBC_TARGET_TRIPLE=%{target_triple} \
+      -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr/local/lib
 
 
 ninja libc
@@ -44,15 +45,19 @@ ninja libc
 cd %{_builddir}/llvm-libc-%{version}/build
 ninja check-libc
 
+
 %install
-# static archive the in the directory: build/projects/libc/lib
-cd build
-DESTDIR=%{buildroot} ninja install
+mkdir -p %{buildroot}/usr/local/lib
+cp %{_builddir}/llvm-libc-%{version}/build/libc/lib/libllvmlibc.a %{buildroot}/usr/local/lib/
+
+
+# 输出文件路径告知用户
+echo "Static library installed at /usr/local/lib/libllvmlibc.a and %{buildroot}/usr/local/lib/libllvmlibc.a"
 
 %files
-%license libc/LICENSE.txt
-%%{_libdir}/libllvmlibc.a
-%{_includedir}/llvm-libc/
+%defattr(-,root,root,-)
+/usr/local/lib/libllvmlibc.a
+
 
 %changelog
 * Wed Sep 18 2024 westtide <tocokeo@outlook.com> - 19.1.0-1
