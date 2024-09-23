@@ -30,11 +30,11 @@ cd build
 %define target_triple riscv64-openEuler-linux-gnu
 %endif
 
-cmake ../runtimes -G Ninja 
+cmake ../runtimes -G Ninja \
       -DLLVM_ENABLE_RUNTIMES="libc"  \
       -DCMAKE_C_COMPILER=clang \
       -DCMAKE_CXX_COMPILER=clang++ \
-      -DCMAKE_BUILD_TYPE=Release>  
+      -DCMAKE_BUILD_TYPE=Release  \
       -DLIBC_TARGET_TRIPLE=%{target_triple} \
       -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr/local/lib
 
